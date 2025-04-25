@@ -25,17 +25,33 @@ module.exports = grammar(standard_grammar, {
 
   conflicts: ($, previous) => [
     ...previous,
-    [$._expression, $.parameter]
+    [$._expression, $.parameter],
+    [$.compilation_unit, $.file_scoped_namespace_declaration]
   ],
 
   rules: {
 
     // Entry point
-    compilation_unit: ($, previous) => {
-      return choice(
-        previous,
-        $.semgrep_expression
-      );
+    // compilation_unit: ($, previous) => {
+    //   return choice(
+    //     previous,
+    //     $.semgrep_expression
+    //   );
+    // },
+    // NOTE: We are relaxing the grammar, since we want to allow
+    // examples such as those in Opengrep issue #92 to be parsed.
+    compilation_unit: ($, _previous) => {
+      return choice (
+        seq(
+          repeat($.extern_alias_directive),
+          repeat($.using_directive),
+          repeat($.global_attribute_list),
+          choice(
+            repeat(choice(
+              $.global_statement,
+              $._namespace_member_declaration)),
+            $.file_scoped_namespace_declaration)),
+        $.semgrep_expression);
     },
 
     // Alternate "entry point". Allows parsing a standalone expression.

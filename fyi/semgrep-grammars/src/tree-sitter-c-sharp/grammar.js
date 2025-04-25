@@ -1789,23 +1789,25 @@ module.exports = grammar({
     verbatim_string_literal: $ => seq(
       '@"',
       repeat(choice(
-        $.verbatim_string_literal_fragment,
+        token.immediate(prec(1, /[^"]+/)),
+        // $.verbatim_string_literal_fragment,
         '""',
       )),
       '"',
       optional(stringEncoding)
     ),
     
-    verbatim_string_literal_fragment: $ => token.immediate(prec(1, /[^"]+/)),
+    // verbatim_string_literal_fragment: $ => token.immediate(prec(1, /[^"]+/)),
 
     raw_string_literal: $ => seq(
       /""["]+/,
-      repeat(choice($.raw_string_literal_fragment)),
+      repeat(token.immediate(prec(1, /([^"]|("[^"])|(""[^"]))/))),
+      // repeat(choice($.raw_string_literal_fragment)),
       /""["]+/,
       optional(stringEncoding)
     ),
     
-    raw_string_literal_fragment: $ => token.immediate(prec(1, /([^"]|("[^"])|(""[^"]))/)),
+    // raw_string_literal_fragment: $ => token.immediate(prec(1, /([^"]|("[^"])|(""[^"]))/)),
 
     // Comments
 
