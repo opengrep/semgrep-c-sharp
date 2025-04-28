@@ -1786,28 +1786,22 @@ module.exports = grammar({
 
     string_literal_encoding: $ => token.immediate(stringEncoding),
 
-    verbatim_string_literal: $ => seq(
+    verbatim_string_literal: $ => token(seq(
       '@"',
       repeat(choice(
-        token.immediate(prec(1, /[^"]+/)),
-        // $.verbatim_string_literal_fragment,
+        /[^"]/,
         '""',
       )),
       '"',
       optional(stringEncoding)
-    ),
-    
-    // verbatim_string_literal_fragment: $ => token.immediate(prec(1, /[^"]+/)),
+    )),
 
-    raw_string_literal: $ => seq(
+    raw_string_literal: $ => token(seq(
       /""["]+/,
-      repeat(token.immediate(prec(1, /([^"]|("[^"])|(""[^"]))/))),
-      // repeat(choice($.raw_string_literal_fragment)),
+      optional(/([^"]|("[^"])|(""[^"]))+/),
       /""["]+/,
       optional(stringEncoding)
-    ),
-    
-    // raw_string_literal_fragment: $ => token.immediate(prec(1, /([^"]|("[^"])|(""[^"]))/)),
+    )),
 
     // Comments
 

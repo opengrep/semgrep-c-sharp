@@ -10,6 +10,8 @@
 
 const standard_grammar = require('tree-sitter-c-sharp/grammar');
 
+const stringEncoding = /(u|U)8/;
+
 module.exports = grammar(standard_grammar, {
   /*
     We can't rename the grammar to 'csharp' because it relies on a custom
@@ -53,6 +55,23 @@ module.exports = grammar(standard_grammar, {
             $.file_scoped_namespace_declaration)),
         $.semgrep_expression);
     },
+
+    verbatim_string_literal: ($, _previous) => seq(
+      '@"',
+      repeat(choice(
+        token.immediate(prec(1, /[^"]+/)),
+        '""',
+      )),
+      '"',
+      optional(stringEncoding)
+    ),
+
+    raw_string_literal: ($, _previous) => seq(
+      /""["]+/,
+      repeat(token.immediate(prec(1, /([^"]|("[^"])|(""[^"]))/))),
+      /""["]+/,
+      optional(stringEncoding)
+    ),
 
     // Alternate "entry point". Allows parsing a standalone expression.
     semgrep_expression: $ => seq('__SEMGREP_EXPRESSION', $._expression),
