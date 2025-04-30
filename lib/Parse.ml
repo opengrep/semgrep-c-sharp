@@ -3544,12 +3544,6 @@ let children_regexps : (string * Run.exp option) list = [
   "file_scoped_namespace_declaration",
   Some (
     Seq [
-      Repeat (
-        Token (Name "global_statement");
-      );
-      Repeat (
-        Token (Name "namespace_member_declaration");
-      );
       Token (Literal "namespace");
       Token (Name "name");
       Token (Literal ";");
@@ -3577,15 +3571,15 @@ let children_regexps : (string * Run.exp option) list = [
         Repeat (
           Token (Name "global_attribute_list");
         );
-        Alt [|
-          Repeat (
-            Alt [|
-              Token (Name "global_statement");
-              Token (Name "namespace_member_declaration");
-            |];
-          );
+        Repeat (
+          Alt [|
+            Token (Name "global_statement");
+            Token (Name "namespace_member_declaration");
+          |];
+        );
+        Opt (
           Token (Name "file_scoped_namespace_declaration");
-        |];
+        );
       ];
       Token (Name "semgrep_expression");
     |];
@@ -11207,34 +11201,24 @@ let trans_file_scoped_namespace_declaration ((kind, body) : mt) : CST.file_scope
   match body with
   | Children v ->
       (match v with
-      | Seq [v0; v1; v2; v3; v4; v5; v6; v7] ->
+      | Seq [v0; v1; v2; v3; v4; v5] ->
           (
-            Run.repeat
-              (fun v -> trans_global_statement (Run.matcher_token v))
-              v0
-            ,
-            Run.repeat
-              (fun v ->
-                trans_namespace_member_declaration (Run.matcher_token v)
-              )
-              v1
-            ,
+            Run.trans_token (Run.matcher_token v0),
+            trans_name (Run.matcher_token v1),
             Run.trans_token (Run.matcher_token v2),
-            trans_name (Run.matcher_token v3),
-            Run.trans_token (Run.matcher_token v4),
             Run.repeat
               (fun v ->
                 trans_extern_alias_directive (Run.matcher_token v)
               )
-              v5
+              v3
             ,
             Run.repeat
               (fun v -> trans_using_directive (Run.matcher_token v))
-              v6
+              v4
             ,
             Run.repeat
               (fun v -> trans_type_declaration (Run.matcher_token v))
-              v7
+              v5
           )
       | _ -> assert false
       )
@@ -11245,9 +11229,9 @@ let trans_compilation_unit ((kind, body) : mt) : CST.compilation_unit =
   | Children v ->
       (match v with
       | Alt (0, v) ->
-          `Rep_extern_alias_dire_rep_using_dire_rep_global_attr_list_choice_rep_choice_global_stmt (
+          `Rep_extern_alias_dire_rep_using_dire_rep_global_attr_list_rep_choice_global_stmt_opt_file_scoped_name_decl (
             (match v with
-            | Seq [v0; v1; v2; v3] ->
+            | Seq [v0; v1; v2; v3; v4] ->
                 (
                   Run.repeat
                     (fun v ->
@@ -11263,31 +11247,27 @@ let trans_compilation_unit ((kind, body) : mt) : CST.compilation_unit =
                     (fun v -> trans_global_attribute_list (Run.matcher_token v))
                     v2
                   ,
-                  (match v3 with
-                  | Alt (0, v) ->
-                      `Rep_choice_global_stmt (
-                        Run.repeat
-                          (fun v ->
-                            (match v with
-                            | Alt (0, v) ->
-                                `Global_stmt (
-                                  trans_global_statement (Run.matcher_token v)
-                                )
-                            | Alt (1, v) ->
-                                `Name_member_decl (
-                                  trans_namespace_member_declaration (Run.matcher_token v)
-                                )
-                            | _ -> assert false
-                            )
+                  Run.repeat
+                    (fun v ->
+                      (match v with
+                      | Alt (0, v) ->
+                          `Global_stmt (
+                            trans_global_statement (Run.matcher_token v)
                           )
-                          v
+                      | Alt (1, v) ->
+                          `Name_member_decl (
+                            trans_namespace_member_declaration (Run.matcher_token v)
+                          )
+                      | _ -> assert false
                       )
-                  | Alt (1, v) ->
-                      `File_scoped_name_decl (
-                        trans_file_scoped_namespace_declaration (Run.matcher_token v)
-                      )
-                  | _ -> assert false
-                  )
+                    )
+                    v3
+                  ,
+                  Run.opt
+                    (fun v ->
+                      trans_file_scoped_namespace_declaration (Run.matcher_token v)
+                    )
+                    v4
                 )
             | _ -> assert false
             )

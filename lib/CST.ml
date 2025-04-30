@@ -1794,9 +1794,7 @@ type namespace_member_declaration = [
 ]
 
 type file_scoped_namespace_declaration = (
-    global_statement list (* zero or more *)
-  * namespace_member_declaration list (* zero or more *)
-  * Token.t (* "namespace" *)
+    Token.t (* "namespace" *)
   * type_name
   * Token.t (* ";" *)
   * extern_alias_directive list (* zero or more *)
@@ -1805,19 +1803,16 @@ type file_scoped_namespace_declaration = (
 )
 
 type compilation_unit = [
-    `Rep_extern_alias_dire_rep_using_dire_rep_global_attr_list_choice_rep_choice_global_stmt of (
+    `Rep_extern_alias_dire_rep_using_dire_rep_global_attr_list_rep_choice_global_stmt_opt_file_scoped_name_decl of (
         extern_alias_directive list (* zero or more *)
       * using_directive list (* zero or more *)
       * global_attribute_list list (* zero or more *)
       * [
-            `Rep_choice_global_stmt of
-              [
-                  `Global_stmt of global_statement
-                | `Name_member_decl of namespace_member_declaration
-              ]
-                list (* zero or more *)
-          | `File_scoped_name_decl of file_scoped_namespace_declaration
+            `Global_stmt of global_statement
+          | `Name_member_decl of namespace_member_declaration
         ]
+          list (* zero or more *)
+      * file_scoped_namespace_declaration option
     )
   | `Semg_exp of (Token.t (* "__SEMGREP_EXPRESSION" *) * expression)
 ]

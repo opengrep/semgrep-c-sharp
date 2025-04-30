@@ -4178,24 +4178,20 @@ let map_namespace_member_declaration (env : env) (x : CST.namespace_member_decla
     )
   )
 
-let map_file_scoped_namespace_declaration (env : env) ((v1, v2, v3, v4, v5, v6, v7, v8) : CST.file_scoped_namespace_declaration) =
-  let v1 = R.List (List.map (map_global_statement env) v1) in
-  let v2 =
-    R.List (List.map (map_namespace_member_declaration env) v2)
+let map_file_scoped_namespace_declaration (env : env) ((v1, v2, v3, v4, v5, v6) : CST.file_scoped_namespace_declaration) =
+  let v1 = (* "namespace" *) token env v1 in
+  let v2 = map_type_name env v2 in
+  let v3 = (* ";" *) token env v3 in
+  let v4 =
+    R.List (List.map (map_extern_alias_directive env) v4)
   in
-  let v3 = (* "namespace" *) token env v3 in
-  let v4 = map_type_name env v4 in
-  let v5 = (* ";" *) token env v5 in
-  let v6 =
-    R.List (List.map (map_extern_alias_directive env) v6)
-  in
-  let v7 = R.List (List.map (map_using_directive env) v7) in
-  let v8 = R.List (List.map (map_type_declaration env) v8) in
-  R.Tuple [v1; v2; v3; v4; v5; v6; v7; v8]
+  let v5 = R.List (List.map (map_using_directive env) v5) in
+  let v6 = R.List (List.map (map_type_declaration env) v6) in
+  R.Tuple [v1; v2; v3; v4; v5; v6]
 
 let map_compilation_unit (env : env) (x : CST.compilation_unit) =
   (match x with
-  | `Rep_extern_alias_dire_rep_using_dire_rep_global_attr_list_choice_rep_choice_global_stmt (v1, v2, v3, v4) -> R.Case ("Rep_extern_alias_dire_rep_using_dire_rep_global_attr_list_choice_rep_choice_global_stmt",
+  | `Rep_extern_alias_dire_rep_using_dire_rep_global_attr_list_rep_choice_global_stmt_opt_file_scoped_name_decl (v1, v2, v3, v4, v5) -> R.Case ("Rep_extern_alias_dire_rep_using_dire_rep_global_attr_list_rep_choice_global_stmt_opt_file_scoped_name_decl",
       let v1 =
         R.List (List.map (map_extern_alias_directive env) v1)
       in
@@ -4204,25 +4200,25 @@ let map_compilation_unit (env : env) (x : CST.compilation_unit) =
         R.List (List.map (map_global_attribute_list env) v3)
       in
       let v4 =
-        (match v4 with
-        | `Rep_choice_global_stmt xs -> R.Case ("Rep_choice_global_stmt",
-            R.List (List.map (fun x ->
-              (match x with
-              | `Global_stmt x -> R.Case ("Global_stmt",
-                  map_global_statement env x
-                )
-              | `Name_member_decl x -> R.Case ("Name_member_decl",
-                  map_namespace_member_declaration env x
-                )
-              )
-            ) xs)
+        R.List (List.map (fun x ->
+          (match x with
+          | `Global_stmt x -> R.Case ("Global_stmt",
+              map_global_statement env x
+            )
+          | `Name_member_decl x -> R.Case ("Name_member_decl",
+              map_namespace_member_declaration env x
+            )
           )
-        | `File_scoped_name_decl x -> R.Case ("File_scoped_name_decl",
-            map_file_scoped_namespace_declaration env x
-          )
-        )
+        ) v4)
       in
-      R.Tuple [v1; v2; v3; v4]
+      let v5 =
+        (match v5 with
+        | Some x -> R.Option (Some (
+            map_file_scoped_namespace_declaration env x
+          ))
+        | None -> R.Option None)
+      in
+      R.Tuple [v1; v2; v3; v4; v5]
     )
   | `Semg_exp (v1, v2) -> R.Case ("Semg_exp",
       let v1 = (* "__SEMGREP_EXPRESSION" *) token env v1 in

@@ -28,7 +28,6 @@ module.exports = grammar(standard_grammar, {
   conflicts: ($, previous) => [
     ...previous,
     [$._expression, $.parameter],
-    [$.compilation_unit, $.file_scoped_namespace_declaration]
   ],
 
   rules: {
@@ -48,11 +47,12 @@ module.exports = grammar(standard_grammar, {
           repeat($.extern_alias_directive),
           repeat($.using_directive),
           repeat($.global_attribute_list),
-          choice(
-            repeat(choice(
-              $.global_statement,
-              $._namespace_member_declaration)),
-            $.file_scoped_namespace_declaration)),
+          seq(repeat(choice(
+            $.global_statement,
+            $._namespace_member_declaration,
+            )),
+            optional($.file_scoped_namespace_declaration)),
+          ),
         $.semgrep_expression);
     },
 
@@ -126,12 +126,12 @@ module.exports = grammar(standard_grammar, {
     // statements, or a file scoped declaration! That's no good. To play 
     // around the previous grammar, we simply allow what came before to also 
     // occur before a file scoped namespace declaration.
-    file_scoped_namespace_declaration: ($, previous) => {
-      return seq(
-        seq(repeat($.global_statement), repeat($._namespace_member_declaration)),
-        previous,
-      )
-    },
+    // file_scoped_namespace_declaration: ($, previous) => {
+    //   return seq(
+    //     seq(repeat($.global_statement), repeat($._namespace_member_declaration)),
+    //     previous,
+    //   )
+    // },
 
     enum_member_declaration: ($, previous) => choice(
           previous,
