@@ -474,7 +474,7 @@ and anon_choice_param_ce11a32 = [
   | `Param_array of (
         attribute_list list (* zero or more *)
       * Token.t (* "params" *)
-      * [ `Array_type of array_type | `Null_type of nullable_type ]
+      * type_pattern
       * implicit_parameter_list
     )
 ]
@@ -2203,7 +2203,7 @@ type order_by_clause (* inlined *) = (
 type parameter_array (* inlined *) = (
     attribute_list list (* zero or more *)
   * Token.t (* "params" *)
-  * [ `Array_type of array_type | `Null_type of nullable_type ]
+  * type_pattern
   * implicit_parameter_list
 )
 

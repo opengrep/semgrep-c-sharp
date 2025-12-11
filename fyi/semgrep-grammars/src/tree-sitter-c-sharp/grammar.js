@@ -337,8 +337,6 @@ module.exports = grammar({
       $._function_body
     ),
 
-    // Params varies quite a lot from grammar.txt as that handles neither 'out' nor 'params' or arrays...
-
     parameter_list: $ => seq(
       '(',
       optional($._formal_parameter_list),
@@ -374,7 +372,7 @@ module.exports = grammar({
     _parameter_array: $ => seq(
       repeat($.attribute_list),
       'params',
-      field('type', choice($.array_type, $.nullable_type)),
+      field('type', $._type),
       field('name', $.identifier),
     ),
 

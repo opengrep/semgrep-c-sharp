@@ -2055,10 +2055,7 @@ let children_regexps : (string * Run.exp option) list = [
         Token (Name "attribute_list");
       );
       Token (Literal "params");
-      Alt [|
-        Token (Name "array_type");
-        Token (Name "nullable_type");
-      |];
+      Token (Name "type");
       Token (Name "identifier");
     ];
   );
@@ -8189,18 +8186,7 @@ and trans_parameter_array ((kind, body) : mt) : CST.parameter_array =
               v0
             ,
             Run.trans_token (Run.matcher_token v1),
-            (match v2 with
-            | Alt (0, v) ->
-                `Array_type (
-                  trans_array_type (Run.matcher_token v)
-                )
-            | Alt (1, v) ->
-                `Null_type (
-                  trans_nullable_type (Run.matcher_token v)
-                )
-            | _ -> assert false
-            )
-            ,
+            trans_type_ (Run.matcher_token v2),
             trans_identifier (Run.matcher_token v3)
           )
       | _ -> assert false

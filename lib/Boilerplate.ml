@@ -1021,16 +1021,7 @@ and map_anon_choice_param_ce11a32 (env : env) (x : CST.anon_choice_param_ce11a32
   | `Param_array (v1, v2, v3, v4) -> R.Case ("Param_array",
       let v1 = R.List (List.map (map_attribute_list env) v1) in
       let v2 = (* "params" *) token env v2 in
-      let v3 =
-        (match v3 with
-        | `Array_type x -> R.Case ("Array_type",
-            map_array_type env x
-          )
-        | `Null_type x -> R.Case ("Null_type",
-            map_nullable_type env x
-          )
-        )
-      in
+      let v3 = map_type_pattern env v3 in
       let v4 = map_implicit_parameter_list env v4 in
       R.Tuple [v1; v2; v3; v4]
     )
