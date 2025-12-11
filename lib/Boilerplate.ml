@@ -3504,7 +3504,7 @@ let map_using_directive (env : env) ((v1, v2, v3, v4, v5) : CST.using_directive)
       ))
     | None -> R.Option None)
   in
-  let v4 = map_type_name env v4 in
+  let v4 = map_type_pattern env v4 in
   let v5 = (* ";" *) token env v5 in
   R.Tuple [v1; v2; v3; v4; v5]
 

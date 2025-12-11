@@ -1479,7 +1479,7 @@ type using_directive = (
   * Token.t (* "using" *)
   * [ `Static of Token.t (* "static" *) | `Name_equals of name_equals ]
       option
-  * type_name
+  * type_pattern
   * Token.t (* ";" *)
 )
 

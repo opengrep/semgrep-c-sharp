@@ -181,7 +181,7 @@ module.exports = grammar({
         'static',
         field('alias', $.name_equals)
       )),
-      field('name', $._name),
+      field('name', $._type),
       ';'
     ),
 

@@ -3025,7 +3025,7 @@ let children_regexps : (string * Run.exp option) list = [
           Token (Name "name_equals");
         |];
       );
-      Token (Name "name");
+      Token (Name "type");
       Token (Literal ";");
     ];
   );
@@ -10229,7 +10229,7 @@ let trans_using_directive ((kind, body) : mt) : CST.using_directive =
               )
               v2
             ,
-            trans_name (Run.matcher_token v3),
+            trans_type_ (Run.matcher_token v3),
             Run.trans_token (Run.matcher_token v4)
           )
       | _ -> assert false
