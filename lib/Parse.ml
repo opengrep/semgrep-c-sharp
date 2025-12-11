@@ -1896,6 +1896,7 @@ let children_regexps : (string * Run.exp option) list = [
       Alt [|
         Token (Literal ".");
         Token (Literal "->");
+        Token (Literal "?.");
       |];
       Token (Name "simple_name");
     ];
@@ -7798,6 +7799,10 @@ and trans_member_access_expression ((kind, body) : mt) : CST.member_access_expre
                 )
             | Alt (1, v) ->
                 `DASHGT (
+                  Run.trans_token (Run.matcher_token v)
+                )
+            | Alt (2, v) ->
+                `QMARKDOT (
                   Run.trans_token (Run.matcher_token v)
                 )
             | _ -> assert false
