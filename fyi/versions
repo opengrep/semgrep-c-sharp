@@ -2,29 +2,38 @@ File: semgrep-grammars/src/tree-sitter-c-sharp/LICENSE
 Git repo name: tree-sitter-c-sharp
 Latest commit in repo: e1384e2f132936019b43aaaae154cd780fb497ce
 Last change in file:
-  commit e1384e2f132936019b43aaaae154cd780fb497ce
-  Author: Amaan Qureshi <amaanq12@gmail.com>
-  Date:   Wed May 1 16:20:19 2024 -0400
+  commit 2162260aec4c7d7d4b43ef2287388adcc302c8d6
+  Author: Damien Guard <damieng@gmail.com>
+  Date:   Wed Jan 11 23:17:42 2023 +0000
   
-      build: update bindings
+      Update copyright notice
 ---
 File: semgrep-grammars/src/tree-sitter-c-sharp/grammar.js
 Git repo name: tree-sitter-c-sharp
 Latest commit in repo: e1384e2f132936019b43aaaae154cd780fb497ce
 Last change in file:
-  commit e1384e2f132936019b43aaaae154cd780fb497ce
-  Author: Amaan Qureshi <amaanq12@gmail.com>
-  Date:   Wed May 1 16:20:19 2024 -0400
+  commit dd5e59721a5f8dae34604060833902b882023aaf
+  Author: Mathew Payne <2772944+GeekMasher@users.noreply.github.com>
+  Date:   Wed Nov 29 20:35:51 2023 +0000
   
-      build: update bindings
+      Support for do and while loops named fields (#324)
+      
+      * Support for do and while loops named fields
+      
+      - both `body` and `condition` fields
+      - updated parser
+      
+      * Update tests
+      
+      * Update file sizes
 ---
 File: semgrep-grammars/src/semgrep-c-sharp/grammar.js
 Git repo name: ocaml-tree-sitter-semgrep
-Latest commit in repo: bb31831344f18ce10eb0356a1139466a7ed00641
+Latest commit in repo: 81720cb7de062007afa54e1b23e3d5936b119313
 Last change in file:
-  commit bb31831344f18ce10eb0356a1139466a7ed00641
+  commit ce4c6aa3fafa0fa61ff82ec197f2deb250405ca8
   Author: Dimitris Mostrous <dimitris.mostrous+aikido@gmail.com>
-  Date:   Mon Apr 28 10:57:58 2025 +0100
+  Date:   Mon May 5 10:40:41 2025 +0100
   
-      ensure all changes are in semgrep grammar's side
+      update c-sharp grammar
 ---

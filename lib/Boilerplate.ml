@@ -3707,7 +3707,7 @@ let map_enum_declaration (env : env) ((v1, v2, v3, v4, v5, v6, v7) : CST.enum_de
   let v7 = (* opt_semi *) token env v7 in
   R.Tuple [v1; v2; v3; v4; v5; v6; v7]
 
-let rec map_class_declaration (env : env) ((v1, v2, v3, v4, v5, v6, v7, v8, v9) : CST.class_declaration) =
+let rec map_class_declaration (env : env) ((v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) : CST.class_declaration) =
   let v1 = R.List (List.map (map_attribute_list env) v1) in
   let v2 = R.List (List.map (map_modifier env) v2) in
   let v3 = (* "class" *) token env v3 in
@@ -3722,16 +3722,23 @@ let rec map_class_declaration (env : env) ((v1, v2, v3, v4, v5, v6, v7, v8, v9) 
   let v6 =
     (match v6 with
     | Some x -> R.Option (Some (
-        map_base_list env x
+        map_parameter_list env x
       ))
     | None -> R.Option None)
   in
   let v7 =
-    R.List (List.map (map_type_parameter_constraints_clause env) v7)
+    (match v7 with
+    | Some x -> R.Option (Some (
+        map_base_list env x
+      ))
+    | None -> R.Option None)
   in
-  let v8 = map_declaration_list env v8 in
-  let v9 = (* opt_semi *) token env v9 in
-  R.Tuple [v1; v2; v3; v4; v5; v6; v7; v8; v9]
+  let v8 =
+    R.List (List.map (map_type_parameter_constraints_clause env) v8)
+  in
+  let v9 = map_declaration_list env v9 in
+  let v10 = (* opt_semi *) token env v10 in
+  R.Tuple [v1; v2; v3; v4; v5; v6; v7; v8; v9; v10]
 
 and map_declaration (env : env) (x : CST.declaration) =
   (match x with
@@ -4107,7 +4114,7 @@ and map_record_struct_declaration (env : env) ((v1, v2, v3, v4, v5, v6, v7, v8, 
   let v11 = (* opt_semi *) token env v11 in
   R.Tuple [v1; v2; v3; v4; v5; v6; v7; v8; v9; v10; v11]
 
-and map_struct_declaration (env : env) ((v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) : CST.struct_declaration) =
+and map_struct_declaration (env : env) ((v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11) : CST.struct_declaration) =
   let v1 = R.List (List.map (map_attribute_list env) v1) in
   let v2 = R.List (List.map (map_modifier env) v2) in
   let v3 =
@@ -4129,16 +4136,23 @@ and map_struct_declaration (env : env) ((v1, v2, v3, v4, v5, v6, v7, v8, v9, v10
   let v7 =
     (match v7 with
     | Some x -> R.Option (Some (
-        map_base_list env x
+        map_parameter_list env x
       ))
     | None -> R.Option None)
   in
   let v8 =
-    R.List (List.map (map_type_parameter_constraints_clause env) v8)
+    (match v8 with
+    | Some x -> R.Option (Some (
+        map_base_list env x
+      ))
+    | None -> R.Option None)
   in
-  let v9 = map_declaration_list env v9 in
-  let v10 = (* opt_semi *) token env v10 in
-  R.Tuple [v1; v2; v3; v4; v5; v6; v7; v8; v9; v10]
+  let v9 =
+    R.List (List.map (map_type_parameter_constraints_clause env) v9)
+  in
+  let v10 = map_declaration_list env v10 in
+  let v11 = (* opt_semi *) token env v11 in
+  R.Tuple [v1; v2; v3; v4; v5; v6; v7; v8; v9; v10; v11]
 
 let map_type_declaration (env : env) (x : CST.type_declaration) =
   (match x with

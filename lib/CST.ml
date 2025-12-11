@@ -1585,6 +1585,7 @@ type class_declaration = (
   * Token.t (* "class" *)
   * implicit_parameter_list
   * type_parameter_list option
+  * parameter_list option
   * base_list option
   * type_parameter_constraints_clause list (* zero or more *)
   * declaration_list
@@ -1771,6 +1772,7 @@ and struct_declaration = (
   * Token.t (* "struct" *)
   * implicit_parameter_list
   * type_parameter_list option
+  * parameter_list option
   * base_list option
   * type_parameter_constraints_clause list (* zero or more *)
   * declaration_list
