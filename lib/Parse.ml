@@ -2088,6 +2088,9 @@ let children_regexps : (string * Run.exp option) list = [
           Token (Literal "in");
         |];
       );
+      Opt (
+        Token (Literal "readonly");
+      );
       Token (Name "ref_base_type");
     ];
   );
@@ -8225,7 +8228,7 @@ and trans_parameter_type_with_modifiers ((kind, body) : mt) : CST.parameter_type
   match body with
   | Children v ->
       (match v with
-      | Seq [v0; v1; v2; v3] ->
+      | Seq [v0; v1; v2; v3; v4] ->
           (
             Run.opt
               (fun v -> Run.trans_token (Run.matcher_token v))
@@ -8255,7 +8258,11 @@ and trans_parameter_type_with_modifiers ((kind, body) : mt) : CST.parameter_type
               )
               v2
             ,
-            trans_ref_base_type (Run.matcher_token v3)
+            Run.opt
+              (fun v -> Run.trans_token (Run.matcher_token v))
+              v3
+            ,
+            trans_ref_base_type (Run.matcher_token v4)
           )
       | _ -> assert false
       )

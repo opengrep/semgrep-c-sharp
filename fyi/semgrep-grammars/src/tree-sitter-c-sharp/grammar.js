@@ -358,6 +358,7 @@ module.exports = grammar({
       alias(optional('this'), $.parameter_modifier),
       alias(optional('scoped'), $.parameter_modifier),
       alias(optional(choice('ref', 'out', 'in')), $.parameter_modifier),
+      alias(optional('readonly'), $.parameter_modifier),
       field('type', $._ref_base_type),
     ),
 

@@ -1007,6 +1007,7 @@ and parameter_type_with_modifiers = (
     Token.t (* "this" *) option
   * Token.t (* "scoped" *) option
   * anon_choice_ref_eec35e8 option
+  * Token.t (* "readonly" *) option
   * ref_base_type
 )
 

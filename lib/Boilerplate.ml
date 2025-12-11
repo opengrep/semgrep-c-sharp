@@ -2351,7 +2351,7 @@ and map_parameter_list (env : env) ((v1, v2, v3) : CST.parameter_list) =
   let v3 = (* ")" *) token env v3 in
   R.Tuple [v1; v2; v3]
 
-and map_parameter_type_with_modifiers (env : env) ((v1, v2, v3, v4) : CST.parameter_type_with_modifiers) =
+and map_parameter_type_with_modifiers (env : env) ((v1, v2, v3, v4, v5) : CST.parameter_type_with_modifiers) =
   let v1 =
     (match v1 with
     | Some tok -> R.Option (Some (
@@ -2373,8 +2373,15 @@ and map_parameter_type_with_modifiers (env : env) ((v1, v2, v3, v4) : CST.parame
       ))
     | None -> R.Option None)
   in
-  let v4 = map_ref_base_type env v4 in
-  R.Tuple [v1; v2; v3; v4]
+  let v4 =
+    (match v4 with
+    | Some tok -> R.Option (Some (
+        (* "readonly" *) token env tok
+      ))
+    | None -> R.Option None)
+  in
+  let v5 = map_ref_base_type env v5 in
+  R.Tuple [v1; v2; v3; v4; v5]
 
 and map_parenthesized_expression (env : env) ((v1, v2, v3) : CST.parenthesized_expression) =
   let v1 = (* "(" *) token env v1 in
