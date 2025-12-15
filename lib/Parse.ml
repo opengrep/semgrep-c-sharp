@@ -20,7 +20,6 @@ type mt = Run.matcher_token
 external create_parser :
   unit -> Tree_sitter_API.ts_parser = "octs_create_parser_c_sharp"
 
-(* NOTE: Ok because we run one target per domain at any 1 time. *)
 let ts_parser = Domain.DLS.new_key create_parser
 
 let parse_source_string ?src_file contents =
@@ -1897,6 +1896,7 @@ let children_regexps : (string * Run.exp option) list = [
       Alt [|
         Token (Literal ".");
         Token (Literal "->");
+        Token (Literal "?.");
       |];
       Token (Name "simple_name");
     ];
@@ -2056,10 +2056,7 @@ let children_regexps : (string * Run.exp option) list = [
         Token (Name "attribute_list");
       );
       Token (Literal "params");
-      Alt [|
-        Token (Name "array_type");
-        Token (Name "nullable_type");
-      |];
+      Token (Name "type");
       Token (Name "identifier");
     ];
   );
@@ -2088,6 +2085,9 @@ let children_regexps : (string * Run.exp option) list = [
           Token (Literal "out");
           Token (Literal "in");
         |];
+      );
+      Opt (
+        Token (Literal "readonly");
       );
       Token (Name "ref_base_type");
     ];
@@ -3023,7 +3023,7 @@ let children_regexps : (string * Run.exp option) list = [
           Token (Name "name_equals");
         |];
       );
-      Token (Name "name");
+      Token (Name "type");
       Token (Literal ";");
     ];
   );
@@ -3352,6 +3352,9 @@ let children_regexps : (string * Run.exp option) list = [
         Token (Name "type_parameter_list");
       );
       Opt (
+        Token (Name "parameter_list");
+      );
+      Opt (
         Token (Name "base_list");
       );
       Repeat (
@@ -3510,6 +3513,9 @@ let children_regexps : (string * Run.exp option) list = [
       Token (Name "identifier");
       Opt (
         Token (Name "type_parameter_list");
+      );
+      Opt (
+        Token (Name "parameter_list");
       );
       Opt (
         Token (Name "base_list");
@@ -7795,6 +7801,10 @@ and trans_member_access_expression ((kind, body) : mt) : CST.member_access_expre
                 `DASHGT (
                   Run.trans_token (Run.matcher_token v)
                 )
+            | Alt (2, v) ->
+                `QMARKDOT (
+                  Run.trans_token (Run.matcher_token v)
+                )
             | _ -> assert false
             )
             ,
@@ -8181,18 +8191,7 @@ and trans_parameter_array ((kind, body) : mt) : CST.parameter_array =
               v0
             ,
             Run.trans_token (Run.matcher_token v1),
-            (match v2 with
-            | Alt (0, v) ->
-                `Array_type (
-                  trans_array_type (Run.matcher_token v)
-                )
-            | Alt (1, v) ->
-                `Null_type (
-                  trans_nullable_type (Run.matcher_token v)
-                )
-            | _ -> assert false
-            )
-            ,
+            trans_type_ (Run.matcher_token v2),
             trans_identifier (Run.matcher_token v3)
           )
       | _ -> assert false
@@ -8220,7 +8219,7 @@ and trans_parameter_type_with_modifiers ((kind, body) : mt) : CST.parameter_type
   match body with
   | Children v ->
       (match v with
-      | Seq [v0; v1; v2; v3] ->
+      | Seq [v0; v1; v2; v3; v4] ->
           (
             Run.opt
               (fun v -> Run.trans_token (Run.matcher_token v))
@@ -8250,7 +8249,11 @@ and trans_parameter_type_with_modifiers ((kind, body) : mt) : CST.parameter_type
               )
               v2
             ,
-            trans_ref_base_type (Run.matcher_token v3)
+            Run.opt
+              (fun v -> Run.trans_token (Run.matcher_token v))
+              v3
+            ,
+            trans_ref_base_type (Run.matcher_token v4)
           )
       | _ -> assert false
       )
@@ -10217,7 +10220,7 @@ let trans_using_directive ((kind, body) : mt) : CST.using_directive =
               )
               v2
             ,
-            trans_name (Run.matcher_token v3),
+            trans_type_ (Run.matcher_token v3),
             Run.trans_token (Run.matcher_token v4)
           )
       | _ -> assert false
@@ -10807,7 +10810,7 @@ let rec trans_class_declaration ((kind, body) : mt) : CST.class_declaration =
   match body with
   | Children v ->
       (match v with
-      | Seq [v0; v1; v2; v3; v4; v5; v6; v7; v8] ->
+      | Seq [v0; v1; v2; v3; v4; v5; v6; v7; v8; v9] ->
           (
             Run.repeat
               (fun v -> trans_attribute_list (Run.matcher_token v))
@@ -10824,17 +10827,21 @@ let rec trans_class_declaration ((kind, body) : mt) : CST.class_declaration =
               v4
             ,
             Run.opt
-              (fun v -> trans_base_list (Run.matcher_token v))
+              (fun v -> trans_parameter_list (Run.matcher_token v))
               v5
+            ,
+            Run.opt
+              (fun v -> trans_base_list (Run.matcher_token v))
+              v6
             ,
             Run.repeat
               (fun v ->
                 trans_type_parameter_constraints_clause (Run.matcher_token v)
               )
-              v6
+              v7
             ,
-            trans_declaration_list (Run.matcher_token v7),
-            trans_opt_semi (Run.matcher_token v8)
+            trans_declaration_list (Run.matcher_token v8),
+            trans_opt_semi (Run.matcher_token v9)
           )
       | _ -> assert false
       )
@@ -11104,7 +11111,7 @@ and trans_struct_declaration ((kind, body) : mt) : CST.struct_declaration =
   match body with
   | Children v ->
       (match v with
-      | Seq [v0; v1; v2; v3; v4; v5; v6; v7; v8; v9] ->
+      | Seq [v0; v1; v2; v3; v4; v5; v6; v7; v8; v9; v10] ->
           (
             Run.repeat
               (fun v -> trans_attribute_list (Run.matcher_token v))
@@ -11125,17 +11132,21 @@ and trans_struct_declaration ((kind, body) : mt) : CST.struct_declaration =
               v5
             ,
             Run.opt
-              (fun v -> trans_base_list (Run.matcher_token v))
+              (fun v -> trans_parameter_list (Run.matcher_token v))
               v6
+            ,
+            Run.opt
+              (fun v -> trans_base_list (Run.matcher_token v))
+              v7
             ,
             Run.repeat
               (fun v ->
                 trans_type_parameter_constraints_clause (Run.matcher_token v)
               )
-              v7
+              v8
             ,
-            trans_declaration_list (Run.matcher_token v8),
-            trans_opt_semi (Run.matcher_token v9)
+            trans_declaration_list (Run.matcher_token v9),
+            trans_opt_semi (Run.matcher_token v10)
           )
       | _ -> assert false
       )

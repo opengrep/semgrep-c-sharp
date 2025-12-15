@@ -181,7 +181,7 @@ module.exports = grammar({
         'static',
         field('alias', $.name_equals)
       )),
-      field('name', $._name),
+      field('name', $._type),
       ';'
     ),
 
@@ -337,8 +337,6 @@ module.exports = grammar({
       $._function_body
     ),
 
-    // Params varies quite a lot from grammar.txt as that handles neither 'out' nor 'params' or arrays...
-
     parameter_list: $ => seq(
       '(',
       optional($._formal_parameter_list),
@@ -358,6 +356,7 @@ module.exports = grammar({
       alias(optional('this'), $.parameter_modifier),
       alias(optional('scoped'), $.parameter_modifier),
       alias(optional(choice('ref', 'out', 'in')), $.parameter_modifier),
+      alias(optional('readonly'), $.parameter_modifier),
       field('type', $._ref_base_type),
     ),
 
@@ -373,7 +372,7 @@ module.exports = grammar({
     _parameter_array: $ => seq(
       repeat($.attribute_list),
       'params',
-      field('type', choice($.array_type, $.nullable_type)),
+      field('type', $._type),
       field('name', $.identifier),
     ),
 
@@ -580,6 +579,7 @@ module.exports = grammar({
       'class',
       field('name', $.identifier),
       field('type_parameters', optional($.type_parameter_list)),
+      field('parameters', optional($.parameter_list)),
       field('bases', optional($.base_list)),
       repeat($.type_parameter_constraints_clause),
       field('body', $.declaration_list),
@@ -611,6 +611,7 @@ module.exports = grammar({
       'struct',
       field('name', $.identifier),
       field('type_parameters', optional($.type_parameter_list)),
+      field('parameters', optional($.parameter_list)),
       field('bases', optional($.base_list)),
       repeat($.type_parameter_constraints_clause),
       field('body', $.declaration_list),
@@ -1386,7 +1387,7 @@ module.exports = grammar({
 
     member_access_expression: $ => prec(PREC.DOT, seq(
       field('expression', choice($._expression, $.predefined_type, $._name)),
-      choice('.', '->'),
+      choice('.', '->', '?.'),
       field('name', $._simple_name)
     )),
 
