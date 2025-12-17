@@ -20,21 +20,13 @@ type mt = Run.matcher_token
 external create_parser :
   unit -> Tree_sitter_API.ts_parser = "octs_create_parser_c_sharp"
 
-let ts_parser = Domain.DLS.new_key create_parser
+let ts_parser = create_parser ()
 
 let parse_source_string ?src_file contents =
-  Fun.protect ~finally:Fun.id (* reset_parser *)
-    (fun () ->
-      Tree_sitter_parsing.parse_source_string ?src_file
-        (Domain.DLS.get ts_parser)
-        contents)
+  Tree_sitter_parsing.parse_source_string ?src_file ts_parser contents
 
 let parse_source_file src_file =
-  Fun.protect ~finally:Fun.id (* reset_parser *)
-    (fun () ->
-      Tree_sitter_parsing.parse_source_file
-        (Domain.DLS.get ts_parser)
-        src_file)
+  Tree_sitter_parsing.parse_source_file ts_parser src_file
 
 let extras = [
   "comment";
@@ -3386,6 +3378,7 @@ let children_regexps : (string * Run.exp option) list = [
       Token (Name "record_struct_declaration");
       Token (Name "struct_declaration");
       Token (Name "using_directive");
+      Token (Name "extension_declaraion");
       Token (Name "ellipsis");
     |];
   );
@@ -3397,6 +3390,19 @@ let children_regexps : (string * Run.exp option) list = [
         Token (Name "declaration");
       );
       Token (Literal "}");
+    ];
+  );
+  "extension_declaraion",
+  Some (
+    Seq [
+      Token (Literal "extension");
+      Token (Literal "(");
+      Token (Name "parameter_type_with_modifiers");
+      Opt (
+        Token (Name "identifier");
+      );
+      Token (Literal ")");
+      Token (Name "declaration_list");
     ];
   );
   "interface_declaration",
@@ -10928,6 +10934,10 @@ and trans_declaration ((kind, body) : mt) : CST.declaration =
             trans_using_directive (Run.matcher_token v)
           )
       | Alt (19, v) ->
+          `Exte_decl (
+            trans_extension_declaraion (Run.matcher_token v)
+          )
+      | Alt (20, v) ->
           `Ellips (
             trans_ellipsis (Run.matcher_token v)
           )
@@ -10947,6 +10957,26 @@ and trans_declaration_list ((kind, body) : mt) : CST.declaration_list =
               v1
             ,
             Run.trans_token (Run.matcher_token v2)
+          )
+      | _ -> assert false
+      )
+  | Leaf _ -> assert false
+
+and trans_extension_declaraion ((kind, body) : mt) : CST.extension_declaraion =
+  match body with
+  | Children v ->
+      (match v with
+      | Seq [v0; v1; v2; v3; v4; v5] ->
+          (
+            Run.trans_token (Run.matcher_token v0),
+            Run.trans_token (Run.matcher_token v1),
+            trans_parameter_type_with_modifiers (Run.matcher_token v2),
+            Run.opt
+              (fun v -> trans_identifier (Run.matcher_token v))
+              v3
+            ,
+            Run.trans_token (Run.matcher_token v4),
+            trans_declaration_list (Run.matcher_token v5)
           )
       | _ -> assert false
       )

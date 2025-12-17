@@ -1710,6 +1710,14 @@ and declaration = [
   | `Record_struct_decl of record_struct_declaration
   | `Struct_decl of struct_declaration
   | `Using_dire of using_directive
+  | `Exte_decl of (
+        Token.t (* "extension" *)
+      * Token.t (* "(" *)
+      * parameter_type_with_modifiers
+      * implicit_parameter_list option
+      * Token.t (* ")" *)
+      * declaration_list
+    )
   | `Ellips of Token.t (* "..." *)
 ]
 
@@ -2459,6 +2467,15 @@ type event_declaration (* inlined *) = (
   * explicit_interface_specifier option
   * implicit_parameter_list
   * [ `Acce_list of accessor_list | `SEMI of Token.t (* ";" *) ]
+)
+
+type extension_declaraion (* inlined *) = (
+    Token.t (* "extension" *)
+  * Token.t (* "(" *)
+  * parameter_type_with_modifiers
+  * implicit_parameter_list option
+  * Token.t (* ")" *)
+  * declaration_list
 )
 
 type extra = [

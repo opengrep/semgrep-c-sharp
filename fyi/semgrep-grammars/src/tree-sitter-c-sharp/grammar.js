@@ -155,8 +155,18 @@ module.exports = grammar({
       $.record_struct_declaration,
       $.struct_declaration,
       $.using_directive,
+      $.extension_declaraion
     ),
 
+    extension_declaraion: $ => seq(
+        'extension',
+        '(',
+        $._parameter_type_with_modifiers,
+        optional($.identifier),
+        ')',
+        field('body', $.declaration_list),
+      ),
+      
     _namespace_member_declaration: $ => choice(
       $.namespace_declaration,
       $._type_declaration
