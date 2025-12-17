@@ -155,10 +155,10 @@ module.exports = grammar({
       $.record_struct_declaration,
       $.struct_declaration,
       $.using_directive,
-      $.extension_declaraion
+      $.extension_declaration
     ),
 
-    extension_declaraion: $ => seq(
+    extension_declaration: $ => seq(
         'extension',
         optional($.type_argument_list),
         '(',

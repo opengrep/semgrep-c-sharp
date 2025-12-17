@@ -2471,7 +2471,7 @@ type event_declaration (* inlined *) = (
   * [ `Acce_list of accessor_list | `SEMI of Token.t (* ";" *) ]
 )
 
-type extension_declaraion (* inlined *) = (
+type extension_declaration (* inlined *) = (
     Token.t (* "extension" *)
   * type_argument_list option
   * Token.t (* "(" *)

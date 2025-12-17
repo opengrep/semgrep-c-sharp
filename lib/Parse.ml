@@ -3378,7 +3378,7 @@ let children_regexps : (string * Run.exp option) list = [
       Token (Name "record_struct_declaration");
       Token (Name "struct_declaration");
       Token (Name "using_directive");
-      Token (Name "extension_declaraion");
+      Token (Name "extension_declaration");
       Token (Name "ellipsis");
     |];
   );
@@ -3392,7 +3392,7 @@ let children_regexps : (string * Run.exp option) list = [
       Token (Literal "}");
     ];
   );
-  "extension_declaraion",
+  "extension_declaration",
   Some (
     Seq [
       Token (Literal "extension");
@@ -10941,7 +10941,7 @@ and trans_declaration ((kind, body) : mt) : CST.declaration =
           )
       | Alt (19, v) ->
           `Exte_decl (
-            trans_extension_declaraion (Run.matcher_token v)
+            trans_extension_declaration (Run.matcher_token v)
           )
       | Alt (20, v) ->
           `Ellips (
@@ -10968,7 +10968,7 @@ and trans_declaration_list ((kind, body) : mt) : CST.declaration_list =
       )
   | Leaf _ -> assert false
 
-and trans_extension_declaraion ((kind, body) : mt) : CST.extension_declaraion =
+and trans_extension_declaration ((kind, body) : mt) : CST.extension_declaration =
   match body with
   | Children v ->
       (match v with
