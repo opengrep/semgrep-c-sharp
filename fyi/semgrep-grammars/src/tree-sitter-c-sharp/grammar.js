@@ -160,10 +160,12 @@ module.exports = grammar({
 
     extension_declaraion: $ => seq(
         'extension',
+        optional($.type_argument_list),
         '(',
         $._parameter_type_with_modifiers,
         optional($.identifier),
         ')',
+        repeat($.type_parameter_constraints_clause),
         field('body', $.declaration_list),
       ),
       

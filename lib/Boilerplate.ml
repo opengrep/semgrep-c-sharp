@@ -3995,20 +3995,30 @@ and map_declaration (env : env) (x : CST.declaration) =
   | `Using_dire x -> R.Case ("Using_dire",
       map_using_directive env x
     )
-  | `Exte_decl (v1, v2, v3, v4, v5, v6) -> R.Case ("Exte_decl",
+  | `Exte_decl (v1, v2, v3, v4, v5, v6, v7, v8) -> R.Case ("Exte_decl",
       let v1 = (* "extension" *) token env v1 in
-      let v2 = (* "(" *) token env v2 in
-      let v3 = map_parameter_type_with_modifiers env v3 in
-      let v4 =
-        (match v4 with
+      let v2 =
+        (match v2 with
+        | Some x -> R.Option (Some (
+            map_type_argument_list env x
+          ))
+        | None -> R.Option None)
+      in
+      let v3 = (* "(" *) token env v3 in
+      let v4 = map_parameter_type_with_modifiers env v4 in
+      let v5 =
+        (match v5 with
         | Some x -> R.Option (Some (
             map_implicit_parameter_list env x
           ))
         | None -> R.Option None)
       in
-      let v5 = (* ")" *) token env v5 in
-      let v6 = map_declaration_list env v6 in
-      R.Tuple [v1; v2; v3; v4; v5; v6]
+      let v6 = (* ")" *) token env v6 in
+      let v7 =
+        R.List (List.map (map_type_parameter_constraints_clause env) v7)
+      in
+      let v8 = map_declaration_list env v8 in
+      R.Tuple [v1; v2; v3; v4; v5; v6; v7; v8]
     )
   | `Ellips tok -> R.Case ("Ellips",
       (* "..." *) token env tok

@@ -1712,10 +1712,12 @@ and declaration = [
   | `Using_dire of using_directive
   | `Exte_decl of (
         Token.t (* "extension" *)
+      * type_argument_list option
       * Token.t (* "(" *)
       * parameter_type_with_modifiers
       * implicit_parameter_list option
       * Token.t (* ")" *)
+      * type_parameter_constraints_clause list (* zero or more *)
       * declaration_list
     )
   | `Ellips of Token.t (* "..." *)
@@ -2471,10 +2473,12 @@ type event_declaration (* inlined *) = (
 
 type extension_declaraion (* inlined *) = (
     Token.t (* "extension" *)
+  * type_argument_list option
   * Token.t (* "(" *)
   * parameter_type_with_modifiers
   * implicit_parameter_list option
   * Token.t (* ")" *)
+  * type_parameter_constraints_clause list (* zero or more *)
   * declaration_list
 )
 
