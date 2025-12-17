@@ -3386,6 +3386,7 @@ let children_regexps : (string * Run.exp option) list = [
       Token (Name "record_struct_declaration");
       Token (Name "struct_declaration");
       Token (Name "using_directive");
+      Token (Name "extension_declaration");
       Token (Name "ellipsis");
     |];
   );
@@ -3397,6 +3398,25 @@ let children_regexps : (string * Run.exp option) list = [
         Token (Name "declaration");
       );
       Token (Literal "}");
+    ];
+  );
+  "extension_declaration",
+  Some (
+    Seq [
+      Token (Literal "extension");
+      Opt (
+        Token (Name "type_argument_list");
+      );
+      Token (Literal "(");
+      Token (Name "parameter_type_with_modifiers");
+      Opt (
+        Token (Name "identifier");
+      );
+      Token (Literal ")");
+      Repeat (
+        Token (Name "type_parameter_constraints_clause");
+      );
+      Token (Name "declaration_list");
     ];
   );
   "interface_declaration",
@@ -10928,6 +10948,10 @@ and trans_declaration ((kind, body) : mt) : CST.declaration =
             trans_using_directive (Run.matcher_token v)
           )
       | Alt (19, v) ->
+          `Exte_decl (
+            trans_extension_declaration (Run.matcher_token v)
+          )
+      | Alt (20, v) ->
           `Ellips (
             trans_ellipsis (Run.matcher_token v)
           )
@@ -10947,6 +10971,36 @@ and trans_declaration_list ((kind, body) : mt) : CST.declaration_list =
               v1
             ,
             Run.trans_token (Run.matcher_token v2)
+          )
+      | _ -> assert false
+      )
+  | Leaf _ -> assert false
+
+and trans_extension_declaration ((kind, body) : mt) : CST.extension_declaration =
+  match body with
+  | Children v ->
+      (match v with
+      | Seq [v0; v1; v2; v3; v4; v5; v6; v7] ->
+          (
+            Run.trans_token (Run.matcher_token v0),
+            Run.opt
+              (fun v -> trans_type_argument_list (Run.matcher_token v))
+              v1
+            ,
+            Run.trans_token (Run.matcher_token v2),
+            trans_parameter_type_with_modifiers (Run.matcher_token v3),
+            Run.opt
+              (fun v -> trans_identifier (Run.matcher_token v))
+              v4
+            ,
+            Run.trans_token (Run.matcher_token v5),
+            Run.repeat
+              (fun v ->
+                trans_type_parameter_constraints_clause (Run.matcher_token v)
+              )
+              v6
+            ,
+            trans_declaration_list (Run.matcher_token v7)
           )
       | _ -> assert false
       )
