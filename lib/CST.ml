@@ -664,6 +664,8 @@ and default_expression = (
 
 and element_binding_expression = bracketed_argument_list
 
+and maybe_element_binding_expression = maybe_bracketed_argument_list
+
 and equals_value_clause = (Token.t (* "=" *) * expression)
 
 and expression = [
@@ -808,13 +810,20 @@ and lvalue_expression = [
   | `Member_access_exp of member_access_expression
   | `Tuple_exp of tuple_expression
   | `Simple_name of simple_name
-  | `Elem_access_exp of (expression * element_binding_expression)
+  | `Elem_access_exp of (expression * maybe_bracketed_argument_list)
   | `Elem_bind_exp of element_binding_expression
   | `Poin_indi_exp of (Token.t (* "*" *) * expression)
   | `Paren_lvalue_exp of (
         Token.t (* "(" *) * lvalue_expression * Token.t (* ")" *)
     )
 ]
+
+and maybe_bracketed_argument_list = (
+    [ `QMARKLBRACK of Token.t (* "?[" *) | `LBRACK of Token.t (* "[" *) ]
+  * argument
+  * (Token.t (* "," *) * argument) list (* zero or more *)
+  * Token.t (* "]" *)
+)
 
 and member_access_ellipsis_expression = (
     anon_choice_exp_3bb8381
@@ -2029,7 +2038,7 @@ type do_statement (* inlined *) = (
 )
 
 type element_access_expression (* inlined *) = (
-    expression * element_binding_expression
+    expression * maybe_bracketed_argument_list
 )
 
 type fixed_statement (* inlined *) = (
