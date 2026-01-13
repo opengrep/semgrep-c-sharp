@@ -1873,7 +1873,7 @@ and map_lvalue_expression (env : env) (x : CST.lvalue_expression) =
     )
   | `Elem_access_exp (v1, v2) -> R.Case ("Elem_access_exp",
       let v1 = map_expression env v1 in
-      let v2 = map_element_binding_expression env v2 in
+      let v2 = map_maybe_bracketed_argument_list env v2 in
       R.Tuple [v1; v2]
     )
   | `Elem_bind_exp x -> R.Case ("Elem_bind_exp",
@@ -1891,6 +1891,28 @@ and map_lvalue_expression (env : env) (x : CST.lvalue_expression) =
       R.Tuple [v1; v2; v3]
     )
   )
+
+and map_maybe_bracketed_argument_list (env : env) ((v1, v2, v3, v4) : CST.maybe_bracketed_argument_list) =
+  let v1 =
+    (match v1 with
+    | `QMARKLBRACK tok -> R.Case ("QMARKLBRACK",
+        (* "?[" *) token env tok
+      )
+    | `LBRACK tok -> R.Case ("LBRACK",
+        (* "[" *) token env tok
+      )
+    )
+  in
+  let v2 = map_argument env v2 in
+  let v3 =
+    R.List (List.map (fun (v1, v2) ->
+      let v1 = (* "," *) token env v1 in
+      let v2 = map_argument env v2 in
+      R.Tuple [v1; v2]
+    ) v3)
+  in
+  let v4 = (* "]" *) token env v4 in
+  R.Tuple [v1; v2; v3; v4]
 
 and map_member_access_ellipsis_expression (env : env) ((v1, v2, v3) : CST.member_access_ellipsis_expression) =
   let v1 = map_anon_choice_exp_3bb8381 env v1 in

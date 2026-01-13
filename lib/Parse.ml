@@ -1278,7 +1278,7 @@ let children_regexps : (string * Run.exp option) list = [
   Some (
     Seq [
       Token (Name "expression");
-      Token (Name "bracketed_argument_list");
+      Token (Name "maybe_bracketed_argument_list");
     ];
   );
   "element_binding_expression",
@@ -1868,6 +1868,23 @@ let children_regexps : (string * Run.exp option) list = [
       Token (Literal "(");
       Token (Name "expression");
       Token (Literal ")");
+    ];
+  );
+  "maybe_bracketed_argument_list",
+  Some (
+    Seq [
+      Alt [|
+        Token (Literal "?[");
+        Token (Literal "[");
+      |];
+      Token (Name "argument");
+      Repeat (
+        Seq [
+          Token (Literal ",");
+          Token (Name "argument");
+        ];
+      );
+      Token (Literal "]");
     ];
   );
   "member_access_ellipsis_expression",
@@ -6529,7 +6546,7 @@ and trans_element_access_expression ((kind, body) : mt) : CST.element_access_exp
       | Seq [v0; v1] ->
           (
             trans_expression (Run.matcher_token v0),
-            trans_bracketed_argument_list (Run.matcher_token v1)
+            trans_maybe_bracketed_argument_list (Run.matcher_token v1)
           )
       | _ -> assert false
       )
@@ -7744,6 +7761,44 @@ and trans_make_ref_expression ((kind, body) : mt) : CST.make_ref_expression =
             Run.trans_token (Run.matcher_token v0),
             Run.trans_token (Run.matcher_token v1),
             trans_expression (Run.matcher_token v2),
+            Run.trans_token (Run.matcher_token v3)
+          )
+      | _ -> assert false
+      )
+  | Leaf _ -> assert false
+
+and trans_maybe_bracketed_argument_list ((kind, body) : mt) : CST.maybe_bracketed_argument_list =
+  match body with
+  | Children v ->
+      (match v with
+      | Seq [v0; v1; v2; v3] ->
+          (
+            (match v0 with
+            | Alt (0, v) ->
+                `QMARKLBRACK (
+                  Run.trans_token (Run.matcher_token v)
+                )
+            | Alt (1, v) ->
+                `LBRACK (
+                  Run.trans_token (Run.matcher_token v)
+                )
+            | _ -> assert false
+            )
+            ,
+            trans_argument (Run.matcher_token v1),
+            Run.repeat
+              (fun v ->
+                (match v with
+                | Seq [v0; v1] ->
+                    (
+                      Run.trans_token (Run.matcher_token v0),
+                      trans_argument (Run.matcher_token v1)
+                    )
+                | _ -> assert false
+                )
+              )
+              v2
+            ,
             Run.trans_token (Run.matcher_token v3)
           )
       | _ -> assert false

@@ -316,6 +316,12 @@ module.exports = grammar({
       ']'
     ),
 
+    maybe_bracketed_argument_list: $ => seq(
+      choice('?[', '['),
+      commaSep1($.argument),
+      ']'
+    ),
+      
     tuple_pattern: $ => seq(
       '(',
       commaSep1(choice(field('name', $.identifier), $.discard, $.tuple_pattern)),
@@ -1299,7 +1305,7 @@ module.exports = grammar({
 
     element_access_expression: $ => prec.right(PREC.POSTFIX, seq(
       field('expression', $._expression),
-      field('subscript', $.bracketed_argument_list)
+      field('subscript', $.maybe_bracketed_argument_list)
     )),
 
     element_binding_expression: $ => $.bracketed_argument_list,
