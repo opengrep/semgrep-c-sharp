@@ -225,34 +225,30 @@ let map_default_switch_label (env : env) ((v1, v2) : CST.default_switch_label) =
   let v2 = (* ":" *) token env v2 in
   R.Tuple [v1; v2]
 
-let map_attribute_target_specifier (env : env) ((v1, v2) : CST.attribute_target_specifier) =
-  let v1 =
-    (match v1 with
-    | `Field tok -> R.Case ("Field",
-        (* "field" *) token env tok
-      )
-    | `Event tok -> R.Case ("Event",
-        (* "event" *) token env tok
-      )
-    | `Meth tok -> R.Case ("Meth",
-        (* "method" *) token env tok
-      )
-    | `Param tok -> R.Case ("Param",
-        (* "param" *) token env tok
-      )
-    | `Prop tok -> R.Case ("Prop",
-        (* "property" *) token env tok
-      )
-    | `Ret tok -> R.Case ("Ret",
-        (* "return" *) token env tok
-      )
-    | `Type tok -> R.Case ("Type",
-        (* "type" *) token env tok
-      )
+let map_attribute_target_specifier (env : env) (v1 : CST.attribute_target_specifier) =
+  (match v1 with
+  | `Fiel tok -> R.Case ("Fiel",
+      (* "field:" *) token env tok
     )
-  in
-  let v2 = (* ":" *) token env v2 in
-  R.Tuple [v1; v2]
+  | `Even tok -> R.Case ("Even",
+      (* "event:" *) token env tok
+    )
+  | `Meth tok -> R.Case ("Meth",
+      (* "method:" *) token env tok
+    )
+  | `Para tok -> R.Case ("Para",
+      (* "param:" *) token env tok
+    )
+  | `Prop tok -> R.Case ("Prop",
+      (* "property:" *) token env tok
+    )
+  | `Retu tok -> R.Case ("Retu",
+      (* "return:" *) token env tok
+    )
+  | `Type tok -> R.Case ("Type",
+      (* "type:" *) token env tok
+    )
+  )
 
 let map_integer_literal (env : env) (tok : CST.integer_literal) =
   (* integer_literal *) token env tok
