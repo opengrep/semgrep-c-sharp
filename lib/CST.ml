@@ -97,18 +97,15 @@ type interpolated_verbatim_string_text_fragment =
 
 type default_switch_label = (Token.t (* "default" *) * Token.t (* ":" *))
 
-type attribute_target_specifier = (
-    [
-        `Field of Token.t (* "field" *)
-      | `Event of Token.t (* "event" *)
-      | `Meth of Token.t (* "method" *)
-      | `Param of Token.t (* "param" *)
-      | `Prop of Token.t (* "property" *)
-      | `Ret of Token.t (* "return" *)
-      | `Type of Token.t (* "type" *)
-    ]
-  * Token.t (* ":" *)
-)
+type attribute_target_specifier = [
+    `Fiel of Token.t (* "field:" *)
+  | `Even of Token.t (* "event:" *)
+  | `Meth of Token.t (* "method:" *)
+  | `Para of Token.t (* "param:" *)
+  | `Prop of Token.t (* "property:" *)
+  | `Retu of Token.t (* "return:" *)
+  | `Type of Token.t (* "type:" *)
+]
 
 type integer_literal = Token.t
 
@@ -663,8 +660,6 @@ and default_expression = (
 )
 
 and element_binding_expression = bracketed_argument_list
-
-and maybe_element_binding_expression = maybe_bracketed_argument_list
 
 and equals_value_clause = (Token.t (* "=" *) * expression)
 

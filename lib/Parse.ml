@@ -76,15 +76,14 @@ let children_regexps : (string * Run.exp option) list = [
   Some (
     Seq [
       Alt [|
-        Token (Literal "field");
-        Token (Literal "event");
-        Token (Literal "method");
-        Token (Literal "param");
-        Token (Literal "property");
-        Token (Literal "return");
-        Token (Literal "type");
+        Token (Literal "field:");
+        Token (Literal "event:");
+        Token (Literal "method:");
+        Token (Literal "param:");
+        Token (Literal "property:");
+        Token (Literal "return:");
+        Token (Literal "type:");
       |];
-      Token (Literal ":");
     ];
   );
   "endif_directive", None;
@@ -3745,15 +3744,15 @@ let trans_attribute_target_specifier ((kind, body) : mt) : CST.attribute_target_
   match body with
   | Children v ->
       (match v with
-      | Seq [v0; v1] ->
+      | Seq [v0] ->
           (
             (match v0 with
             | Alt (0, v) ->
-                `Field (
+                `Fiel (
                   Run.trans_token (Run.matcher_token v)
                 )
             | Alt (1, v) ->
-                `Event (
+                `Even (
                   Run.trans_token (Run.matcher_token v)
                 )
             | Alt (2, v) ->
@@ -3761,7 +3760,7 @@ let trans_attribute_target_specifier ((kind, body) : mt) : CST.attribute_target_
                   Run.trans_token (Run.matcher_token v)
                 )
             | Alt (3, v) ->
-                `Param (
+                `Para (
                   Run.trans_token (Run.matcher_token v)
                 )
             | Alt (4, v) ->
@@ -3769,7 +3768,7 @@ let trans_attribute_target_specifier ((kind, body) : mt) : CST.attribute_target_
                   Run.trans_token (Run.matcher_token v)
                 )
             | Alt (5, v) ->
-                `Ret (
+                `Retu (
                   Run.trans_token (Run.matcher_token v)
                 )
             | Alt (6, v) ->
@@ -3778,8 +3777,6 @@ let trans_attribute_target_specifier ((kind, body) : mt) : CST.attribute_target_
                 )
             | _ -> assert false
             )
-            ,
-            Run.trans_token (Run.matcher_token v1)
           )
       | _ -> assert false
       )
