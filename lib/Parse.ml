@@ -2975,19 +2975,6 @@ let children_regexps : (string * Run.exp option) list = [
       Token (Name "argument_list");
     ];
   );
-  "base_list",
-  Some (
-    Seq [
-      Token (Literal ":");
-      Token (Name "type");
-      Repeat (
-        Seq [
-          Token (Literal ",");
-          Token (Name "type");
-        ];
-      );
-    ];
-  );
   "event_field_declaration",
   Some (
     Seq [
@@ -3145,6 +3132,37 @@ let children_regexps : (string * Run.exp option) list = [
       );
       Token (Literal "}");
     ];
+  );
+  "base_list",
+  Some (
+    Alt [|
+      Seq [
+        Token (Literal ":");
+        Token (Name "type");
+        Repeat (
+          Seq [
+            Token (Literal ",");
+            Token (Name "type");
+          ];
+        );
+      ];
+      Seq [
+        Token (Literal ":");
+        Token (Name "primary_constructor_base_type");
+        Opt (
+          Seq [
+            Token (Literal ",");
+            Token (Name "type");
+            Repeat (
+              Seq [
+                Token (Literal ",");
+                Token (Name "type");
+              ];
+            );
+          ];
+        );
+      ];
+    |];
   );
   "record_base",
   Some (
@@ -10162,31 +10180,6 @@ let trans_constructor_initializer ((kind, body) : mt) : CST.constructor_initiali
       )
   | Leaf _ -> assert false
 
-let trans_base_list ((kind, body) : mt) : CST.base_list =
-  match body with
-  | Children v ->
-      (match v with
-      | Seq [v0; v1; v2] ->
-          (
-            Run.trans_token (Run.matcher_token v0),
-            trans_type_ (Run.matcher_token v1),
-            Run.repeat
-              (fun v ->
-                (match v with
-                | Seq [v0; v1] ->
-                    (
-                      Run.trans_token (Run.matcher_token v0),
-                      trans_type_ (Run.matcher_token v1)
-                    )
-                | _ -> assert false
-                )
-              )
-              v2
-          )
-      | _ -> assert false
-      )
-  | Leaf _ -> assert false
-
 let trans_event_field_declaration ((kind, body) : mt) : CST.event_field_declaration =
   match body with
   | Children v ->
@@ -10496,6 +10489,72 @@ let trans_enum_member_declaration_list ((kind, body) : mt) : CST.enum_member_dec
               v2
             ,
             Run.trans_token (Run.matcher_token v3)
+          )
+      | _ -> assert false
+      )
+  | Leaf _ -> assert false
+
+let trans_base_list ((kind, body) : mt) : CST.base_list =
+  match body with
+  | Children v ->
+      (match v with
+      | Alt (0, v) ->
+          `COLON_type_rep_COMMA_type (
+            (match v with
+            | Seq [v0; v1; v2] ->
+                (
+                  Run.trans_token (Run.matcher_token v0),
+                  trans_type_ (Run.matcher_token v1),
+                  Run.repeat
+                    (fun v ->
+                      (match v with
+                      | Seq [v0; v1] ->
+                          (
+                            Run.trans_token (Run.matcher_token v0),
+                            trans_type_ (Run.matcher_token v1)
+                          )
+                      | _ -> assert false
+                      )
+                    )
+                    v2
+                )
+            | _ -> assert false
+            )
+          )
+      | Alt (1, v) ->
+          `COLON_prim_cons_base_type_opt_COMMA_type_rep_COMMA_type (
+            (match v with
+            | Seq [v0; v1; v2] ->
+                (
+                  Run.trans_token (Run.matcher_token v0),
+                  trans_primary_constructor_base_type (Run.matcher_token v1),
+                  Run.opt
+                    (fun v ->
+                      (match v with
+                      | Seq [v0; v1; v2] ->
+                          (
+                            Run.trans_token (Run.matcher_token v0),
+                            trans_type_ (Run.matcher_token v1),
+                            Run.repeat
+                              (fun v ->
+                                (match v with
+                                | Seq [v0; v1] ->
+                                    (
+                                      Run.trans_token (Run.matcher_token v0),
+                                      trans_type_ (Run.matcher_token v1)
+                                    )
+                                | _ -> assert false
+                                )
+                              )
+                              v2
+                          )
+                      | _ -> assert false
+                      )
+                    )
+                    v2
+                )
+            | _ -> assert false
+            )
           )
       | _ -> assert false
       )

@@ -3509,18 +3509,6 @@ let map_global_attribute_list (env : env) ((v1, v2, v3, v4, v5) : CST.global_att
   let v5 = (* "]" *) token env v5 in
   R.Tuple [v1; v2; v3; v4; v5]
 
-let map_base_list (env : env) ((v1, v2, v3) : CST.base_list) =
-  let v1 = (* ":" *) token env v1 in
-  let v2 = map_type_pattern env v2 in
-  let v3 =
-    R.List (List.map (fun (v1, v2) ->
-      let v1 = (* "," *) token env v1 in
-      let v2 = map_type_pattern env v2 in
-      R.Tuple [v1; v2]
-    ) v3)
-  in
-  R.Tuple [v1; v2; v3]
-
 let map_bracketed_parameter_list (env : env) ((v1, v2, v3) : CST.bracketed_parameter_list) =
   let v1 = (* "[" *) token env v1 in
   let v2 = map_formal_parameter_list env v2 in
@@ -3699,6 +3687,43 @@ let map_record_base (env : env) (x : CST.record_base) =
               R.List (List.map (fun (v1, v2) ->
                 let v1 = (* "," *) token env v1 in
                 let v2 = map_type_name env v2 in
+                R.Tuple [v1; v2]
+              ) v3)
+            in
+            R.Tuple [v1; v2; v3]
+          ))
+        | None -> R.Option None)
+      in
+      R.Tuple [v1; v2; v3]
+    )
+  )
+
+let map_base_list (env : env) (x : CST.base_list) =
+  (match x with
+  | `COLON_type_rep_COMMA_type (v1, v2, v3) -> R.Case ("COLON_type_rep_COMMA_type",
+      let v1 = (* ":" *) token env v1 in
+      let v2 = map_type_pattern env v2 in
+      let v3 =
+        R.List (List.map (fun (v1, v2) ->
+          let v1 = (* "," *) token env v1 in
+          let v2 = map_type_pattern env v2 in
+          R.Tuple [v1; v2]
+        ) v3)
+      in
+      R.Tuple [v1; v2; v3]
+    )
+  | `COLON_prim_cons_base_type_opt_COMMA_type_rep_COMMA_type (v1, v2, v3) -> R.Case ("COLON_prim_cons_base_type_opt_COMMA_type_rep_COMMA_type",
+      let v1 = (* ":" *) token env v1 in
+      let v2 = map_primary_constructor_base_type env v2 in
+      let v3 =
+        (match v3 with
+        | Some (v1, v2, v3) -> R.Option (Some (
+            let v1 = (* "," *) token env v1 in
+            let v2 = map_type_pattern env v2 in
+            let v3 =
+              R.List (List.map (fun (v1, v2) ->
+                let v1 = (* "," *) token env v1 in
+                let v2 = map_type_pattern env v2 in
                 R.Tuple [v1; v2]
               ) v3)
             in
