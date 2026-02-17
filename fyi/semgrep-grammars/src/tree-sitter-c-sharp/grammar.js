@@ -575,7 +575,10 @@ module.exports = grammar({
       $._opt_semi,
     ),
 
-    base_list: $ => seq(':', commaSep1($._type)),
+    base_list: $ => choice(
+      seq(':', commaSep1($._type)),
+      seq(':', $.primary_constructor_base_type, optional(seq(',', commaSep1($._type)))),
+    ),
 
     enum_member_declaration_list: $ => seq(
       '{',

@@ -1478,12 +1478,6 @@ type global_attribute_list = (
   * Token.t (* "]" *)
 )
 
-type base_list = (
-    Token.t (* ":" *)
-  * type_pattern
-  * (Token.t (* "," *) * type_pattern) list (* zero or more *)
-)
-
 type bracketed_parameter_list = (
     Token.t (* "[" *) * formal_parameter_list * Token.t (* "]" *)
 )
@@ -1566,6 +1560,24 @@ type record_base = [
             Token.t (* "," *)
           * type_name
           * (Token.t (* "," *) * type_name) list (* zero or more *)
+        )
+          option
+    )
+]
+
+type base_list = [
+    `COLON_type_rep_COMMA_type of (
+        Token.t (* ":" *)
+      * type_pattern
+      * (Token.t (* "," *) * type_pattern) list (* zero or more *)
+    )
+  | `COLON_prim_cons_base_type_opt_COMMA_type_rep_COMMA_type of (
+        Token.t (* ":" *)
+      * primary_constructor_base_type
+      * (
+            Token.t (* "," *)
+          * type_pattern
+          * (Token.t (* "," *) * type_pattern) list (* zero or more *)
         )
           option
     )
