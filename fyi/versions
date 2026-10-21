@@ -1,35 +1,77 @@
 File: semgrep-grammars/src/tree-sitter-c-sharp/LICENSE
 Git repo name: tree-sitter-c-sharp
-Latest commit in repo: e1384e2f132936019b43aaaae154cd780fb497ce
+Latest commit in repo: 8c0abe0b84a3681d3e6852ce2e2a1eecb4f731c5
 Last change in file:
-  commit 2162260aec4c7d7d4b43ef2287388adcc302c8d6
-  Author: Damien Guard <damieng@gmail.com>
-  Date:   Wed Jan 11 23:17:42 2023 +0000
+  commit bf99ce8e40358bd215b06727b07ecc3f1e575afb
+  Author: Amaan Qureshi <amaanq12@gmail.com>
+  Date:   Tue Apr 30 14:57:27 2024 -0400
   
-      Update copyright notice
+      build: update bindings and manifests
 ---
 File: semgrep-grammars/src/tree-sitter-c-sharp/grammar.js
 Git repo name: tree-sitter-c-sharp
-Latest commit in repo: e1384e2f132936019b43aaaae154cd780fb497ce
+Latest commit in repo: 8c0abe0b84a3681d3e6852ce2e2a1eecb4f731c5
 Last change in file:
-  commit dd5e59721a5f8dae34604060833902b882023aaf
-  Author: Mathew Payne <2772944+GeekMasher@users.noreply.github.com>
-  Date:   Wed Nov 29 20:35:51 2023 +0000
+  commit f1c7c1ee21f56a33412c12efb8abe0c483f05f0d
+  Author: Alexandre Laroche <larochealexandre@hotmail.com>
+  Date:   Tue Jun 2 12:56:56 2026 -0400
   
-      Support for do and while loops named fields (#324)
+      fix: parse `(IDENT) && EXPR` as logical-AND, not cast (#413) (#430)
       
-      * Support for do and while loops named fields
+      Tree-sitter's state-aware lexer was splitting `&&` into two `&`
+      tokens when the parser was exploring the cast-expression
+      interpretation of `(IDENT)`. With `&` listed as a prefix unary
+      operator and `cast_expression` accepting any expression as its
+      value, the cast state always preferred a unary `&` over the binary
+      `&&` (which isn't valid as an expression-start token), producing
+      the misparse `cast(IDENT, &(&EXPR))`.
       
-      - both `body` and `condition` fields
-      - updated parser
+      Fix: split address-of out of `prefix_unary_expression` into a
+      separate `_address_of_expression` rule that requires its operand
+      to be an lvalue (matching the C# spec's address-of-expression).
+      `(b > 0)` is not an lvalue, so once the lexer splits `&&` the
+      inner `& (b > 0)` no longer matches and the cast interpretation
+      fails; the parser then takes the parenthesized-expression path and
+      the lexer emits `&&` as a single token, giving the correct
+      logical-AND parse.
       
-      * Update tests
+      The shape mirrors the existing `_pointer_indirection_expression`
+      (the `*` operator): both restrict their operand to an lvalue and
+      both alias back to the public `prefix_unary_expression` node so the
+      AST shape is preserved for downstream consumers. The intentional
+      omission of `&` and `*` from `prefix_unary_expression`'s choice
+      list is now documented inline.
       
-      * Update file sizes
+      The existing `Dereference versus logical and` corpus test pinned
+      the buggy behavior — it is renamed to `Logical AND vs cast
+      disambiguation with parenthesized LHS (#413)` and expanded from 1
+      to 10 cases covering: chained `&&`, mixed `&&`/`||`, the negation
+      `!(x) && (y)`, the issue's exact `(x) && (y > 0)`, the
+      generic-type LHS `(MyType<T>) && c`, a single-`&` cast-like
+      `(l) & m`, an address-of on the RHS `(i) && &j`, and two
+      preservation sentinels for legitimate address-of (`(IntPtr) &x`
+      and `&x`).
+      
+      One known intentional consequence: `(int) && b` (and other
+      predefined-type LHS forms) now produce an ERROR node where they
+      previously misparsed as a cast. This is correct — `(int) && b` is
+      not valid C# (you can't logical-AND a type with a value), so the
+      previous "cast" parse was producing misleading output. The
+      parenthesized-expression fallback isn't available for predefined
+      types because they aren't expressions, so there's no clean
+      non-cast interpretation. Producing ERROR matches Roslyn's behavior
+      for the same input.
+      
+      The single-`&` cast-vs-bitwise-AND ambiguity (`(l) & m`) is left
+      as cast — that interpretation matches the C# spec's syntactic
+      disambiguation rule, and resolving it would require semantic
+      information that tree-sitter does not have.
+      
+      Closes #413
 ---
 File: semgrep-grammars/src/semgrep-c-sharp/grammar.js
 Git repo name: ocaml-tree-sitter-semgrep
-Latest commit in repo: 0d74980bb16749748167c21e090bbc7782471c9a
+Latest commit in repo: 8e856b97e47032aba104c7337c354db8b33d103d
 Last change in file:
   commit ce4c6aa3fafa0fa61ff82ec197f2deb250405ca8
   Author: Dimitris Mostrous <dimitris.mostrous+aikido@gmail.com>
